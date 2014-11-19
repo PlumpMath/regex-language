@@ -75,7 +75,6 @@ def get_primes(start):
             return element
 
 def solve_number_10():
-    # She *is* working on Project Euler #10, I knew it!
     total = 2
     for next_prime in get_primes(3):
         if next_prime < 2000000:
