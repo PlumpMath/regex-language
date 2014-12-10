@@ -1,4 +1,4 @@
-regex-language
+Irregular
 ==============
 
-A regular expression domain-specific language for Lua written in a Python interpreter.
+A regular expression domain-specific language for Lua implemented with Pythonic coroutines.
