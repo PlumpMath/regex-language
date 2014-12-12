@@ -30,9 +30,13 @@ def seq(patt1, patt2):
 
 
 def alt(patt1, patt2):
+    print("patt1 " + str(patt1))
+    print("patt2 " + str(patt2))
     def alt_helper(s, pos):
-        patt1(s, pos)
-        patt2(s, pos)
+        for apos in patt1(s, pos):
+	    yield apos
+        for bpos in patt2(s, pos):
+	    yield bpos
     return lambda s, pos: alt_helper(s, pos)
 
 
@@ -45,16 +49,16 @@ def call_ast(ast):
 	ret_func = seq(call_ast(ast.left), call_ast(ast.right))  	
 
     if(ast.regex == "alt"):
-	ret_func = seq(call_ast(ast.left), call_ast(ast.right))  
+	ret_func = alt(call_ast(ast.left), call_ast(ast.right))  
 
     return ret_func
 	
 
-patt = seq(prim("his"), prim("tory"))
+patt = alt(prim("science"), prim("history"))
 
 match("history", patt)
 
-ast = parse(("(his)(tory)"))
+ast = parse(("(science)|(history)"))
 
 parr = call_ast(ast)
 

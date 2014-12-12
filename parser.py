@@ -52,9 +52,9 @@ def parse(tokens):
 		node.right = parse(tokens[seq+1:])
 	    if tokens[seq+1] == "|": 
 		node.regex = "alt"
-		print("first half " + tokens[:seq+1])
+		#print("first half " + tokens[:seq+1])
 		node.left = parse(tokens[:seq+1])
-		print("second half " + tokens[seq+2:])
+		#print("second half " + tokens[seq+2:])
 		node.right = parse(tokens[seq+2:])
 	
     return node
