@@ -1,3 +1,6 @@
+from parser import parse
+from parser import Node
+
 # For the regex (abc|de)x
 
 def match(s, patt):
@@ -32,5 +35,27 @@ def alt(patt1, patt2):
         patt2(s, pos)
     return lambda s, pos: alt_helper(s, pos)
 
+
+def call_ast(ast):
+    ret_func = None
+    if(ast.regex == "prim"):
+	ret_func = prim(ast.prim_value)
+
+    if(ast.regex == "seq"):
+	ret_func = seq(call_ast(ast.left), call_ast(ast.right))  	
+
+    if(ast.regex == "alt"):
+	ret_func = seq(call_ast(ast.left), call_ast(ast.right))  
+
+    return ret_func
+	
+
 patt = seq(prim("his"), prim("tory"))
+
 match("history", patt)
+
+ast = parse(("(his)(tory)"))
+
+parr = call_ast(ast)
+
+match("history", parr)

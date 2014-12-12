@@ -58,7 +58,7 @@ def parse(tokens):
 		node.right = parse(tokens[seq+2:])
 	
     return node
-
+'''
 inp = "((a)|(c*))|((b))"
 ast = parse(inp)
 print(ast.regex)
@@ -66,3 +66,4 @@ print(ast.left.regex)
 print(ast.left.left.regex)
 print(ast.left.right.regex)
 print(ast.right.regex)
+'''
