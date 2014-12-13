@@ -20,6 +20,15 @@ def prim(st):
 
     return lambda s, pos: prim_helper(s, pos)
 
+def kleene(st):
+    def kleene_helper(s, pos):
+	kleene_pos = pos
+	while kleene_pos+len(st) <= len(s) and s[kleene_pos:kleene_pos+len(st)] == st:
+	    kleene_pos += len(st)
+	    yield kleene_pos
+    return lambda s, pos: kleene_helper(s, pos)
+   
+
 #seq(prim("h"), prim("ello")) 
 def seq(patt1, patt2):
     def seq_helper(s, pos):
@@ -27,7 +36,6 @@ def seq(patt1, patt2):
             for mpos in patt2(s, npos):
                 yield mpos
     return lambda s, pos: seq_helper(s, pos)
-
 
 def alt(patt1, patt2):
     print("patt1 " + str(patt1))
@@ -52,9 +60,12 @@ def call_ast(ast):
 	ret_func = alt(call_ast(ast.left), call_ast(ast.right))  
 
     return ret_func
-	
 
-patt = alt(prim("science"), prim("history"))
+patt = seq(kleene("aa"), prim("aaba"))
+match("aaaaba", patt)
+	
+'''
+patt = alt(kleene("science"), prim("history"))
 
 match("history", patt)
 
@@ -63,3 +74,4 @@ ast = parse(("(science)|(history)"))
 parr = call_ast(ast)
 
 match("history", parr)
+'''
