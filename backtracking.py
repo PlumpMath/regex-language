@@ -57,11 +57,9 @@ def kleene(patt1):
 	kleene_match = True
 	while kleene_match:
 	    kleene_match = False
-	    print("pos " + str(pos))	
 	    for apos in patt1(s, pos):	
 	    	kleene_match = True
 		pos = apos
-	    print("kleene_match " + str(kleene_match))
 	    yield pos
     return lambda s, pos: kleene_helper(s, pos)
 
@@ -79,8 +77,8 @@ def call_ast(ast):
 
     return ret_func
 
-patt = seq(kleene(prim("aa")), prim("aaba"))
-match("aaaaaaba", patt)
+patt = seq(kleene(alt(prim("a"), prim("b"))), prim("aaba"))
+match("ababaaba", patt)
 	
 '''
 patt = alt(prim("science"), prim("history"))
