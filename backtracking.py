@@ -10,8 +10,8 @@ def match(s, patt):
         if pos == len(s):
             print True
             return True
-        print False
-        return False
+    print False
+    return False
 
 def prim(st):
     def prim_helper(s, pos):
@@ -79,8 +79,8 @@ def call_ast(ast):
 
     return ret_func
 
-patt = i()
-match("aaaa", patt)
+patt = seq(kleene(prim("aa")), prim("aaba"))
+match("aaaaaaba", patt)
 	
 '''
 patt = alt(prim("science"), prim("history"))
