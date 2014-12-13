@@ -73,7 +73,10 @@ def call_ast(ast):
 	ret_func = seq(call_ast(ast.left), call_ast(ast.right))  	
 
     if(ast.regex == "alt"):
-	ret_func = alt(call_ast(ast.left), call_ast(ast.right))  
+	ret_func = alt(call_ast(ast.left), call_ast(ast.right)) 
+
+    if(ast.regex == "kleene"):
+	ret_func = kleene(call_ast(ast.child)) 
 
     return ret_func
 
