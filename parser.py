@@ -45,6 +45,7 @@ def parse(tokens):
     if seq:
 	if seq == len(tokens) - 1:
 	    node = parse(tokens[1:-1])
+        if seq == len(tokens) - 2 
 	if seq < len(tokens) - 1:
 	    if tokens[seq+1] == "(": 
 		node.regex = "seq"
