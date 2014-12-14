@@ -60,9 +60,22 @@ def kleene(patt1):
 	    for apos in patt1(s, pos):	
 	    	kleene_match = True
 		pos = apos
-	    yield pos
+	        yield pos
     return lambda s, pos: kleene_helper(s, pos)
 
+
+def plus(patt1):
+    def plus_helper(s, pos):
+	plus_match = True
+        orig_pos = pos
+	while plus_match:
+	    plus_match = False
+	    for apos in patt1(s, pos):	
+	    	plus_match = True
+		pos = apos
+                if pos != orig_pos:
+	            yield pos
+    return lambda s, pos: plus_helper(s, pos)
 
 def call_ast(ast):
     ret_func = None
@@ -78,10 +91,13 @@ def call_ast(ast):
     if(ast.regex == "kleene"):
 	ret_func = kleene(call_ast(ast.child)) 
 
+    if(ast.regex == "plus"):
+	ret_func = plus(call_ast(ast.child)) 
+
     return ret_func
 
-patt = seq(kleene(alt(prim("a"), prim("b"))), prim("aaba"))
-match("ababaaba", patt)
+patt = seq(plus(prim("a")), prim("aab"))
+match("aab", patt)
 	
 '''
 patt = alt(prim("science"), prim("history"))
