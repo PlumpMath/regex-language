@@ -77,6 +77,13 @@ def plus(patt1):
 	            yield pos
     return lambda s, pos: plus_helper(s, pos)
 
+def question(patt1):
+    def question_helper(s, pos):
+        yield pos
+        for apos in patt1(s, pos): 
+            yield apos
+    return lambda s, pos: question_helper(s, pos)
+
 def call_ast(ast):
     ret_func = None
     if(ast.regex == "prim"):
@@ -94,9 +101,12 @@ def call_ast(ast):
     if(ast.regex == "plus"):
 	ret_func = plus(call_ast(ast.child)) 
 
+    if(ast.regex == "question"):
+	ret_func = question(call_ast(ast.child)) 
+
     return ret_func
 
-patt = seq(plus(prim("a")), prim("aab"))
+patt = seq(question(prim("a")), prim("aab"))
 match("aab", patt)
 	
 '''
