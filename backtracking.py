@@ -63,6 +63,26 @@ def kleene(patt1):
 	        yield pos
     return lambda s, pos: kleene_helper(s, pos)
 
+def plus(patt1):
+    def plus_helper(s, pos):
+	plus_match = True
+        orig_pos = pos
+	while plus_match:
+	    plus_match = False
+	    for apos in patt1(s, pos):	
+	    	plus_match = True
+		pos = apos
+                if pos != orig_pos:
+	            yield pos
+    return lambda s, pos: plus_helper(s, pos)
+
+def question(patt1):
+    def question_helper(s, pos):
+        yield pos
+        for apos in patt1(s, pos): 
+            yield apos
+    return lambda s, pos: question_helper(s, pos)
+    
 def call_ast(ast):
     ret_func = None
     if(ast.regex == "prim"):
