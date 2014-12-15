@@ -1,69 +1,140 @@
 class Node(object):
     def __init__(self):
         self.regex = None
-	self.prim_value = None
+        self.prim_value = None
         self.left = None
-	self.right = None
+        self.right = None
         self.child = None
-
-def parse(tokens):
-    node = Node()
-    #seq = tokens.find(")")
-    paren_counter = [0, False]
-    seq = 0
-    for token in tokens:
-	if(token == "("):
-	    paren_counter[0] += 1 	
-	    paren_counter[1] = True	
-
-	if(token == ")"):
-	    paren_counter[0] -= 1
-	
-	if(paren_counter[0] == 0 and paren_counter[1] == True):
-	    break
-	seq += 1
-
-#    def process(s):
-#	if s.count("(") > s.count(")"):
-#	   s = s[1:]
-#	if s.count("(") < s.count(")"):
-#	   s = s[:-1]
-#	return s
-
-
-    if not "(" in tokens and not ")" in tokens and not "|" in tokens:
-        if "*" in tokens:
-            node.regex = "kleene"
-            node.child = parse(tokens[:-1])
-        elif "+" in tokens:
-            node.regex = "plus"
-            node.child = parse(tokens[:-1])
+    def __str__(self):
+        if self.regex == None:
+            return "None"
+        elif self.regex == "prim":
+            return "prim(\"" + self.prim_value + "\")"
+        elif self.regex == "seq" or self.regex == "alt":
+            return self.regex + "(" + str(self.left) + ", " + str(self.right) + ")"
         else:
-            node.regex = "prim"
-	    node.prim_value = tokens
+            return self.regex + "(" + str(self.child) + ")"
 
-    if seq:
-	if seq == len(tokens) - 1:
-	    node = parse(tokens[1:-1])
-	if seq < len(tokens) - 1:
-	    if tokens[seq+1] == "(": 
-		node.regex = "seq"
-		node.left = parse(tokens[:seq+1])
-		node.right = parse(tokens[seq+1:])
-	    if tokens[seq+1] == "|": 
-		node.regex = "alt"
-		#print("first half " + tokens[:seq+1])
-		node.left = parse(tokens[:seq+1])
-		#print("second half " + tokens[seq+2:])
-		node.right = parse(tokens[seq+2:])
-	
+def parse(tokens, trail_prim = ""):
+    node = Node()
+    i = len(tokens) - 1
+    
+    #check if there is a trailing prim, concatenate onto existing stack or return collected prims
+    if not is_rep_mod(tokens[i]) and tokens[i] != ")" and in_alt_node(i, tokens) < 0:
+        trail_prim = tokens[i] + trail_prim
+        if i == 0:
+            node.regex = "prim"
+            node.prim_value = trail_prim
+        else:
+            node = parse(tokens[:i], trail_prim)
+    
+    #add trailing prim back on if it exists
+    elif trail_prim != "":
+        prim = Node()
+        prim.regex = "prim"
+        prim.prim_value = trail_prim
+        node.regex = "seq"
+        node.left = parse(tokens)
+        node.right = prim
+
+    #redundant parenthesis
+    elif tokens[i] == ")" and matching_open(i, tokens) == 0:
+        node = parse(tokens[1:i])
+
+    #simple sequence, no alt
+    elif in_alt_node(i, tokens) < 0:
+        node.regex = "seq"
+        offset = 0
+        if is_rep_mod(tokens[i]):
+            offset = 1
+            temp = Node()
+            temp.regex = rep_str[tokens[i]]
+        i_open = i - offset
+        if tokens[i_open] == ")":
+            i_open = matching_open(i_open, tokens)
+        if i_open != 0:
+            node.left = parse(tokens[:i_open])
+        if offset == 1:
+            temp.child = parse(tokens[i_open:i])
+            if i_open == 0:
+                node = temp
+            else:
+                node.right = temp
+        else:
+            if i_open == 0:
+                node = parse(tokens[i_open:])
+            else:
+                node.right = parse(tokens[i_open:])
+
+    #with alts
+    else:
+        alt = Node()
+        alt.regex = "alt"
+        i_left = in_alt_node(i, tokens)
+        start = first_alt(i, tokens)
+        alt.right = parse(tokens[i_left + 2:])
+        alt.left = parse(tokens[start:i_left+1])
+
+        if start == 0:
+            node = alt
+        else:
+            offset = 0
+            if is_rep_mod(tokens[start-1]):
+                offset = 1
+            i_open = start -1 - offset
+            if tokens[i_open] == ")":
+                i_open = matching_open(i_open, tokens)
+            node.regex = "seq"
+            node.left = parse(tokens[:start])
+            node.right = alt
     return node
-'''
-inp = "((a)|(c*))|((b))"
-ast = parse(inp)
-print(ast.regex)
-print(ast.left.regex)
-print(ast.left.left.regex)
-print(ast.left.right.regex)
-print(ast.right.regex)
-'''
+
+#dict of repetition symbol string names
+rep_str = {"*":"kleene", "+":"plus", "?":"ques"}
+
+#given index of closing parens, returns matching open parens index
+def matching_open(i, seq):
+    count = 1
+    while count != 0:
+        i -= 1
+        if seq[i] == ")":
+            count += 1
+        elif seq[i] == "(":
+            count -= 1
+    return i
+
+#given character, determines if it is either *, +, or ?
+def is_rep_mod(token):
+    return token == "*" or token == "+" or token == "?"
+
+#given index and sequence, returns index of other side of alt or 0
+def in_alt_node(i, seq):
+    offset = 0
+    if is_rep_mod(seq[i]):
+        offset = 1
+    i_open = i - offset
+    if seq[i - offset] == ")":
+        i_open = matching_open(i - offset, seq)
+    if seq[i_open - 1] == "|":
+        return i_open - 2
+    else:
+        return -1
+
+#given index to right side of alt, returns index of beginning of whole alt chain
+def first_alt(i, seq):
+    i_left = in_alt_node(i, seq)
+    while True:
+        if in_alt_node(i_left, seq) < 0:
+            break
+        else:
+            i_left = in_alt_node(i_left, seq)
+    offset = 0
+    if is_rep_mod(seq[i_left]):
+        offset = 1
+    if seq[i_left - offset] == ")":
+        return matching_open(i_left - offset, seq)
+    return i_left - offset
+
+reg = "aaba(ad)*|hi|(d*e)|g(hi)jk"
+ast = parse(reg)
+print(str(ast))
