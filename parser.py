@@ -135,6 +135,3 @@ def first_alt(i, seq):
         return matching_open(i_left - offset, seq)
     return i_left - offset
 
-reg = "aaba(ad)*|hi|(d*e)|g(hi)jk"
-ast = parse(reg)
-print(str(ast))

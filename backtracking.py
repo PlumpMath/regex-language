@@ -6,11 +6,8 @@ from parser import Node
 def match(s, patt):
     matches = patt(s, 0)
     for pos in matches:
-        print(pos)
         if pos == len(s):
-            print True
             return True
-    print False
     return False
 
 def prim(st):
@@ -43,8 +40,6 @@ def seq(patt1, patt2):
 
 
 def alt(patt1, patt2):
-    print("patt1 " + str(patt1))
-    print("patt2 " + str(patt2))
     def alt_helper(s, pos):
         for apos in patt1(s, pos):
 	    yield apos
@@ -60,7 +55,7 @@ def kleene(patt1):
 	    for apos in patt1(s, pos):	
 	    	kleene_match = True
 		pos = apos
-	        yield pos
+	    yield pos
     return lambda s, pos: kleene_helper(s, pos)
 
 def plus(patt1):
@@ -100,13 +95,18 @@ def call_ast(ast):
     if(ast.regex == "plus"):
 	ret_func = plus(call_ast(ast.child)) 
 
-    if(ast.regex == "question"):
+    if(ast.regex == "ques"):
 	ret_func = question(call_ast(ast.child)) 
 
     return ret_func
+    
 
-patt = seq(question(prim("a")), prim("aab"))
-match("aab", patt)
+#patt = seq(question(prim("a")), prim("aab"))
+patt = parse("a?aab")
+match("aab", call_ast(patt))
+
+def regex_matching(input_string, regex):
+    return match(input_string, call_ast(parse(regex))) 
 	
 '''
 patt = alt(prim("science"), prim("history"))
