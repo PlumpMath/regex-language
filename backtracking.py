@@ -17,17 +17,6 @@ def prim(st):
 
     return lambda s, pos: prim_helper(s, pos)
 
-#Kleene Primitive
-'''
-def kleene(patt1):
-    def kleene_helper(s, pos):
-	kleene_pos = pos
-	while kleene_pos+len(st) <= len(s) and s[kleene_pos:kleene_pos+len(st)] == st:
-	    kleene_pos += len(st)
-	    yield kleene_pos
-    return lambda s, pos: kleene_helper(s, pos)
-''' 
-  
 
 #seq(prim("h"), prim("ello")) 
 def seq(patt1, patt2):
@@ -99,23 +88,7 @@ def call_ast(ast):
 	ret_func = question(call_ast(ast.child)) 
 
     return ret_func
-    
-
-#patt = seq(question(prim("a")), prim("aab"))
-patt = parse("a?aab")
-match("aab", call_ast(patt))
 
 def regex_matching(input_string, regex):
     return match(input_string, call_ast(parse(regex))) 
 	
-'''
-patt = alt(prim("science"), prim("history"))
-
-match("history", patt)
-
-ast = parse(("(science)|(history)"))
-
-parr = call_ast(ast)
-
-match("history", parr)
-'''
