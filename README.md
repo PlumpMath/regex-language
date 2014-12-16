@@ -3,7 +3,7 @@ Irregular
 
 A domain-specific language mimicing Lua's regular expression functionality but implemented with Pythonic coroutines and generators.
 
-Please refer to the wiki for more Irregular documentation
+**Please refer to the wiki for more Irregular documentation.**
 
 Irregular features an abstract syntax tree parser and an interperter that implements the regular expression backtracking algorithim.
 
