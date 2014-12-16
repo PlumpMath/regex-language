@@ -1,19 +1,29 @@
 from backtracking import *
 
-print(regex_matching("bc", "a|bc"))
-print(regex_matching("aab", "a?aab"))
-print(regex_matching("ccccddee", "((abc)*|(a|(b|c)*d+))(def|e)"))
-print(regex_matching("b", "a*b"))
-print(regex_matching("aabadddehijk", "aaba(ad)*|hi|(d*e)|g(hi)jk"))
-print(regex_matching("add", "(ad)*d*"))
+
+print("Matching bc with the regex a|bc returns..." + str(regex_matching("bc", "a|bc")))
+print("\n")
+print("Matching aab with the regex aab|a?aab returns..." + str(regex_matching("aab", "a?aab")))
+print("\n")
+print("Matching aaaaaaba with the regex (aa)*aaba returns..." + str(regex_matching("aaaaaaba", "(aa)*aaba")))
+print("\n")
+print("Matching ccccddee with the regex ((abc)*|(a|(b|c)*d+))(def|e) returns..." + str(regex_matching("ccccddee", "((abc)*|(a|(b|c)*d+))(def|e)")))
+print("\n")
+print("Matching b with the regex a*b returns..." + str(regex_matching("b", "a*b")))
+print("\n")
+print("Matching aabadddehijk with the regex aaba(ad)*|hi|(d*e)|g(hi)jk returns..." + str(regex_matching("aabadddehijk", "aaba(ad)*|hi|(d*e)|g(hi)jk")))
+print("\n")
+print("Matching add with the regex (ad)*d* returns..." + str(regex_matching("add", "(ad)*d*")))
+print("\n")
 
 roster = ["rick", "puneet", "bodik", "aaron"]
 for i in roster:
     if regex_matching(i, "b+o+d+i+k+"):
-	print "Found professor"
+	print(str(i) + " is a professor")
     else:
-	print "Found student"
+	print(str(i) + " is a student")
 
+print("\n")
 #Valid regex, also demonstrates potential for desugaring other regexs
 any_letter = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)*"
 email_regex = any_letter + "_?" + any_letter + "@" + any_letter + "." + "(com)|(edu)|(net)"
