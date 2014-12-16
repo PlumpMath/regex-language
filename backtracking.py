@@ -1,8 +1,6 @@
 from parser import parse
 from parser import Node
 
-# For the regex (abc|de)x
-
 def match(s, patt):
     matches = patt(s, 0)
     for pos in matches:
@@ -17,16 +15,12 @@ def prim(st):
 
     return lambda s, pos: prim_helper(s, pos)
 
-
-#seq(prim("h"), prim("ello")) 
 def seq(patt1, patt2):
     def seq_helper(s, pos):
         for npos in patt1(s, pos):
             for mpos in patt2(s, npos):
                 yield mpos
     return lambda s, pos: seq_helper(s, pos)
-
-
 
 def alt(patt1, patt2):
     def alt_helper(s, pos):
@@ -39,12 +33,15 @@ def alt(patt1, patt2):
 def kleene(patt1):
     def kleene_helper(s, pos):
 	kleene_match = True
+	orig_pos = pos	
 	while kleene_match:
 	    kleene_match = False
 	    for apos in patt1(s, pos):	
 	    	kleene_match = True
 		pos = apos
-	    yield pos
+	    	yield pos
+	    if not kleene_match and pos == orig_pos:
+		yield pos
     return lambda s, pos: kleene_helper(s, pos)
 
 def plus(patt1):
