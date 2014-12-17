@@ -19,6 +19,8 @@ print("Matching aabadddehijk with the regex aaba(ad)*|hi|(d*e)|g(hi)jk returns..
 print("\n")
 print("Matching xxxxxxxxxxxxxxxxxxxxxxxxxxxxy with the regex (x+x+)+y returns..." + str(regex_matching("xxxxxxxxxxxxxxxxxxxxxxxxxxxxy", "(x+x+)+y")))
 print("\n")
+print("Matching xxxxxxxxxxxxxxxxxxxxxxxxxxxx with the regex (x+x+)+y returns (NOTE: THIS SHOULD RETURN FALSE)..." + str(regex_matching("xxxxxxxxxxxxxxxxxxxxxxxxxxxx", "(x+x+)+y")))
+print("\n")
 
 roster = ["rick", "puneet", "bodik", "aaron"]
 for i in roster:
