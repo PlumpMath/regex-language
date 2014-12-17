@@ -38,33 +38,20 @@ def parse(tokens, trail_prim = ""):
         node.right = prim
 
     #redundant parenthesis
-    elif tokens[i] == ")" and matching_open(i, tokens) == 0:
+    elif tokens[i] == ")" and front(i, tokens) == 0:
         node = parse(tokens[1:i])
 
-    #simple sequence, no alt
+    #standalone rep mod
+    elif front(i, tokens) == 0:
+        node.regex = rep_str[tokens[i]]
+        node.child = parse(tokens[:i])
+
+    #seq
     elif in_alt_node(i, tokens) < 0:
+        split = front(i, tokens)
         node.regex = "seq"
-        offset = 0
-        if is_rep_mod(tokens[i]):
-            offset = 1
-            temp = Node()
-            temp.regex = rep_str[tokens[i]]
-        i_open = i - offset
-        if tokens[i_open] == ")":
-            i_open = matching_open(i_open, tokens)
-        if i_open != 0:
-            node.left = parse(tokens[:i_open])
-        if offset == 1:
-            temp.child = parse(tokens[i_open:i])
-            if i_open == 0:
-                node = temp
-            else:
-                node.right = temp
-        else:
-            if i_open == 0:
-                node = parse(tokens[i_open:])
-            else:
-                node.right = parse(tokens[i_open:])
+        node.left = parse(tokens[:split])
+        node.right = parse(tokens[split:])
 
     #with alts
     else:
@@ -78,12 +65,6 @@ def parse(tokens, trail_prim = ""):
         if start == 0:
             node = alt
         else:
-            offset = 0
-            if is_rep_mod(tokens[start-1]):
-                offset = 1
-            i_open = start -1 - offset
-            if tokens[i_open] == ")":
-                i_open = matching_open(i_open, tokens)
             node.regex = "seq"
             node.left = parse(tokens[:start])
             node.right = alt
@@ -107,31 +88,37 @@ def matching_open(i, seq):
 def is_rep_mod(token):
     return token == "*" or token == "+" or token == "?"
 
-#given index and sequence, returns index of other side of alt or 0
-def in_alt_node(i, seq):
+#given end of grouping, returns index of beginning of grouping
+def front(i, seq):
     offset = 0
     if is_rep_mod(seq[i]):
         offset = 1
-    i_open = i - offset
-    if seq[i - offset] == ")":
-        i_open = matching_open(i - offset, seq)
-    if seq[i_open - 1] == "|":
-        return i_open - 2
+    i -= offset
+    if seq[i] == ")":
+        count = 1
+        while count != 0:
+            i -= 1
+            if seq[i] == ")":
+                count += 1
+            elif seq[i] == "(":
+                count -= 1
+        return i
+    return i
+
+#given index and sequence, returns index of other side of alt or 0
+def in_alt_node(i, seq):
+    i = front(i, seq)
+    if seq[i - 1] == "|":
+        return i - 2
     else:
         return -1
 
 #given index to right side of alt, returns index of beginning of whole alt chain
 def first_alt(i, seq):
-    i_left = in_alt_node(i, seq)
+    i = in_alt_node(i, seq)
     while True:
-        if in_alt_node(i_left, seq) < 0:
+        if in_alt_node(i, seq) < 0:
             break
         else:
-            i_left = in_alt_node(i_left, seq)
-    offset = 0
-    if is_rep_mod(seq[i_left]):
-        offset = 1
-    if seq[i_left - offset] == ")":
-        return matching_open(i_left - offset, seq)
-    return i_left - offset
-
+            i = in_alt_node(i, seq)
+    return front(i, seq)
